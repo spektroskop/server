@@ -4,6 +4,7 @@ import (
 	"flag"
 	"net/http"
 	"net/http/pprof"
+	"path/filepath"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -12,7 +13,7 @@ import (
 var (
 	clientDir = flag.String("client", "./client", "")
 	listen    = flag.String("listen", ":3000", "")
-	profile   = flag.Bool("profile", false, "")
+	profile   = flag.String("profile", "", "")
 )
 
 func main() {
@@ -20,10 +21,11 @@ func main() {
 
 	router := mux.NewRouter()
 
-	if *profile {
-		router.Handle("/debug/profile", http.HandlerFunc(pprof.Profile))
-		router.Handle("/debug/heap", pprof.Handler("heap"))
-		router.Handle("/debug/trace", http.HandlerFunc(pprof.Trace))
+	if *profile != "" {
+		prof := func(name string) string { return filepath.Join("/", *profile, name) }
+		router.Handle(prof("profile"), http.HandlerFunc(pprof.Profile))
+		router.Handle(prof("heap"), pprof.Handler("heap"))
+		router.Handle(prof("trace"), http.HandlerFunc(pprof.Trace))
 	}
 
 	router.PathPrefix("/").HandlerFunc(staticHandler(*clientDir)).Methods("HEAD", "GET")
