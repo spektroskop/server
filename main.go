@@ -10,11 +10,10 @@ import (
 	"os"
 	"time"
 
-	"golang.org/x/net/trace"
-
 	"github.com/gorilla/mux"
 	"github.com/namsral/flag"
 	"github.com/uber-go/zap"
+	"golang.org/x/net/trace"
 )
 
 var (
